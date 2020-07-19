@@ -32,6 +32,8 @@ class User_model extends CI_Emerald_Model {
     protected $time_created;
     /** @var string */
     protected $time_updated;
+    /** @var int */
+    protected $likes;
 
 
     private static $_current_user;
@@ -53,6 +55,14 @@ class User_model extends CI_Emerald_Model {
     {
         $this->email = $email;
         return $this->save('email', $email);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_likes()
+    {
+        return $this->likes;
     }
 
     /**
@@ -205,6 +215,17 @@ class User_model extends CI_Emerald_Model {
     {
         $this->time_created = $time_created;
         return $this->save('time_created', $time_created);
+    }
+
+    /**
+     * @param string $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
     }
 
     /**

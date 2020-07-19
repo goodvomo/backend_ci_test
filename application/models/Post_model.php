@@ -136,6 +136,17 @@ class Post_model extends CI_Emerald_Model
     }
 
     /**
+     * @param string $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
+    }
+
+    /**
      * @return Comment_model[]
      */
     public function get_comments()
@@ -188,6 +199,12 @@ class Post_model extends CI_Emerald_Model
     public static function create(array $data)
     {
         App::get_ci()->s->from(self::CLASS_TABLE)->insert($data)->execute();
+        return new static(App::get_ci()->s->get_insert_id());
+    }
+
+    public static function update(array $data, array $where)
+    {
+        App::get_ci()->s->from(self::CLASS_TABLE)->where($where)->update($data)->execute();
         return new static(App::get_ci()->s->get_insert_id());
     }
 
@@ -280,7 +297,7 @@ class Post_model extends CI_Emerald_Model
         $o->user = User_model::preparation($data->get_user(),'main_page');
         $o->coments = Comment_model::preparation($data->get_comments(),'full_info');
 
-        $o->likes = rand(0, 25);
+        $o->likes = $data->get_likes();
 
 
         $o->time_created = $data->get_time_created();

@@ -122,7 +122,7 @@ $system_path = '../system';
  *
  * NO TRAILING SLASH!
  */
-$application_folder = '/var/www/futureisrise/application';
+$application_folder = '/var/www/sometestworkspace/application';
 
 /*
  *---------------------------------------------------------------

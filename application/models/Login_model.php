@@ -7,6 +7,21 @@ class Login_model extends CI_Model {
 
     }
 
+    public static function login($login, $password) :?int
+    {
+        $user = App::get_ci()->s
+            ->from('user')
+            ->where('personaname', $login)
+            ->select(['id', 'password'])
+            ->one();
+
+        if (!empty($user) && $password == $user['password']) {
+            return $user['id'];
+        } else {
+            return null;
+        }
+    }
+
     public static function logout()
     {
         App::get_ci()->session->unset_userdata('id');

@@ -21,22 +21,22 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
         <li class="nav-item">
-            <?  if (User_model::is_logged()) {?>
+            <?php  if (User_model::is_logged()) {?>
               <a href="/main_page/logout" class="btn btn-primary my-2 my-sm-0"
                  data-target="#loginModal">Log out, <?= $user->personaname?>
               </a>
-            <? } else {?>
+            <?php } else {?>
               <button type="button" class="btn btn-success my-2 my-sm-0" type="submit" data-toggle="modal"
                       data-target="#loginModal">Log IN
               </button>
-            <? } ?>
+            <?php } ?>
         </li>
         <li class="nav-item">
-            <?  if (User_model::is_logged()) {?>
+            <?php  if (User_model::is_logged()) {?>
               <button type="button" class="btn btn-success my-2 my-sm-0" type="submit" data-toggle="modal"
                       data-target="#addModal">Add balance
               </button>
-            <? }?>
+            <?php }?>
         </li>
       </div>
 <!--      <div class="collapse navbar-collapse" id="navbarTogglerDemo01">-->
@@ -132,9 +132,10 @@
               </div>
             </div>
           </form>
+            <div class="error-message" style="color: darkred; text-align: center;"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button class="btn btn-primary" @click.prevent="logIn">Login</button>
         </div>
       </div>
@@ -177,12 +178,35 @@
                   <span>{{likes}}</span>
                 </div>
               </div>
-              <p class="card-text" v-for="comment in post.coments"> {{comment.user.personaname + ' - '}}<small class="text-muted">{{comment.text}}</small></p>
-              <form class="form-inline">
+                <div class="" v-for="comment in post.coments">
+                    <p class="card-text">
+                        {{comment.user.personaname + ' - '}}<small class="text-muted">{{comment.text}}
+                            <div class="likes" @click="addLike(comment.id, false)">
+                                <div class="heart-wrap">
+                                    <div class="heart">
+                                        <svg class="bi bi-heart" width="1em" height="1em" viewBox="0 0 16 16"
+                                             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                  d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 01.176-.17C12.72-3.042 23.333 4.867 8 15z"
+                                                  clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>{{comment.likes}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </small>
+                    </p>
+                </div>
+
+
+              <form class="form-inline" id="comment" action="">
+                  <div class="invalid-feedback" v-show="invalidCommentText">
+                      Comment can not be empty!.
+                  </div>
                 <div class="form-group">
                   <input type="text" class="form-control" id="addComment" v-model="commentText">
                 </div>
-                <button type="submit" class="btn btn-primary">Add comment</button>
+                <button type="submit" class="btn btn-primary" @click.prevent="addComment(post.id)">Add comment</button>
               </form>
             </div>
           </div>
