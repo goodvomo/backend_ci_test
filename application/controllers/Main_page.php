@@ -130,6 +130,12 @@ class Main_page extends MY_Controller
         if (!User_model::is_logged()) {
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
         }
+        $userId = App::get_ci()->session->userdata('id');
+        $user = new User_model($userId);
+        $userLikes = $user->get_likes();
+        if (0 == $userLikes) {
+            return $this->response_success(['type' => 'errorLike']);
+        }
         $likes = 0;
         if ('post' == $type) {
             try {
@@ -148,11 +154,8 @@ class Main_page extends MY_Controller
                 return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
             }
         }
-
-        $userId = App::get_ci()->session->userdata('id');
-        $user = new User_model($userId);
-        $user->set_likes($user->get_likes() - 1);
-        return $this->response_success(['likes' => $likes, 'type' => $type]);
+        $user->set_likes($userLikes - 1);
+        return $this->response_success(['likes' => $likes, 'type' => $type, 'entityId' => $entityId]);
     }
 
 }

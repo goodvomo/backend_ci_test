@@ -183,14 +183,14 @@
                         {{comment.user.personaname + ' - '}}<small class="text-muted">{{comment.text}}
                             <div class="likes" @click="addLike(comment.id, false)">
                                 <div class="heart-wrap">
-                                    <div class="heart">
+                                    <div class="heart" v-bind:id=comment.id >
                                         <svg class="bi bi-heart" width="1em" height="1em" viewBox="0 0 16 16"
                                              fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd"
                                                   d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 01.176-.17C12.72-3.042 23.333 4.867 8 15z"
                                                   clip-rule="evenodd"/>
                                         </svg>
-                                        <span>{{comment.likes}}</span>
+                                        <span class="comment_like" v-bind:id=comment.id >{{comment.likes}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -201,7 +201,10 @@
 
               <form class="form-inline" id="comment" action="">
                   <div class="invalid-feedback" v-show="invalidCommentText">
-                      Comment can not be empty!.
+                      Comment can not be empty!
+                  </div>
+                  <div class="invalid-feedback" v-show="notEnoughLikes">
+                      Not enough likes!
                   </div>
                 <div class="form-group">
                   <input type="text" class="form-control" id="addComment" v-model="commentText">

@@ -8,6 +8,7 @@ var app = new Vue({
         invalidPass: false,
         invalidSum: false,
         invalidCommentText: false,
+        notEnoughLikes: false,
         posts: [],
         addSum: 0,
         amount: 0,
@@ -127,9 +128,13 @@ var app = new Vue({
             axios
                 .get('/main_page/like/' + type + '/' + id)
                 .then(function (response) {
-                    if (response.data.type == 'comment') {
-                        // если после сдачи тестового лайки комментов не обновляются - значит,
-                        // я, таки, не успел найти решение вопроса с метками обновления :)
+                    if (response.data.type == 'errorLike') {
+                        self.notEnoughLikes = true;
+                    } else if (response.data.type == 'comment') {
+                        $('.heart#' + response.data.entityId).html('<svg class="bi bi-heart-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n' +
+                            '                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" clip-rule="evenodd"/>\n' +
+                            '                    </svg>');
+                        $('.heart#' + response.data.entityId).append('<span> ' + response.data.likes + '</span>');
                     } else {
                         self.likes = response.data.likes;
                     }
