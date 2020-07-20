@@ -99,9 +99,13 @@ var app = new Vue({
                 self.invalidSum = true
             } else {
                 self.invalidSum = false
-                axios.post('/main_page/add_money', {
-                    sum: self.addSum,
-                })
+                axios.post('/main_page/add_money',
+                    'sum=' + self.addSum,
+                    {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    })
                     .then(function (response) {
                         setTimeout(function () {
                             $('#addModal').modal('hide');
@@ -143,9 +147,9 @@ var app = new Vue({
         },
         buyPack: function (id) {
             var self = this;
-            axios.post('/main_page/buy_boosterpack', {
-                id: id,
-            })
+            axios.post('/main_page/buy_boosterpack',
+                'id=' + id
+            )
                 .then(function (response) {
                     self.amount = response.data.amount
                     if (self.amount !== 0) {

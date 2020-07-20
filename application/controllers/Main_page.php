@@ -16,6 +16,9 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('User_model');
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
+        App::get_ci()->load->model('Balance_log_model');
+        App::get_ci()->load->model('Boosterpack_model');
+        App::get_ci()->load->model('Ref_operation_model');
 
         if (is_prod()) {
             die('In production it will be hard to debug! Run as development environment!');
@@ -114,14 +117,65 @@ class Main_page extends MY_Controller
 
     public function add_money()
     {
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1, 55)]);
+        $sum = App::get_ci()->input->post('sum');
+
+        if (preg_match('~\D~', $sum)) {
+            return $this->response_success(['error' => 'Only numeric values allowed!']);
+        }
+
+        $userId = App::get_ci()->session->userdata('id');
+        $user = new User_model($userId);
+        $balance = $user->get_wallet_balance() + (int)$sum;
+        $user->set_wallet_balance($balance);
+        $user->set_wallet_total_refilled($user->get_wallet_total_refilled() + (int)$sum);
+        $balance = new Balance_log_model();
+        $balance::create([
+            'userId'    => $userId,
+            'operation' => Ref_operation_model::OPERATION_ADD_BALANCE,
+            'amount'    => $sum,
+        ]);
+
+        return $this->response_success(['amount' => $balance]);
     }
 
     public function buy_boosterpack()
     {
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1, 55)]);
+        $id = App::get_ci()->input->post('id');
+
+        $userId = App::get_ci()->session->userdata('id');
+        $user = new User_model($userId);
+
+        $boosterpack = new Boosterpack_model($id);
+        $bank = $boosterpack->get_bank();
+        $price = $boosterpack->get_price();
+
+        $likes = rand(1, $price + $bank);
+
+        $boosterpack->set_bank($price - $likes);
+        $user->set_wallet_balance($user->get_wallet_balance() - $price);
+        $user->set_wallet_total_withdrawn($user->get_wallet_total_withdrawn()+$user);
+        $user->set_likes($user->get_likes() + $likes);
+
+        $balance_log = new Balance_log_model();
+        $balance_log::create([
+            'userId'    => $userId,
+            'operation' => Ref_operation_model::OPERATION_BUY_BOOSTERPACK,
+            'amount'    => $price,
+            'bankId'    => $boosterpack->get_id(),
+        ]);
+        $balance_log::create([
+            'userId'    => $userId,
+            'operation' => Ref_operation_model::OPERATION_ADD_BANK,
+            'amount'    => $price,
+            'bankId'    => $boosterpack->get_id(),
+        ]);
+        $balance_log::create([
+            'userId'    => $userId,
+            'operation' => Ref_operation_model::OPERATION_ADD_LIKE,
+            'amount'    => $likes,
+        ]);
+
+        return $this->response_success(['amount' => $likes]);
     }
 
 
@@ -141,6 +195,8 @@ class Main_page extends MY_Controller
             try {
                 $post = new Post_model($entityId);
                 $likes = $post->get_likes() + 1;
+                $author = $post->get_user();
+                $author->set_likes($author->get_likes()+1);
                 $post->set_likes($likes);
             } catch (EmeraldModelNoDataException $ex) {
                 return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
@@ -149,6 +205,8 @@ class Main_page extends MY_Controller
             try {
                 $comment = new Comment_model($entityId);
                 $likes = $comment->get_likes() + 1;
+                $author = $comment->get_user();
+                $author->set_likes($author->get_likes()+1);
                 $comment->set_likes($likes);
             } catch (EmeraldModelNoDataException $ex) {
                 return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
